@@ -1,0 +1,8 @@
+/Library
+/App
+/Release
+/Temp
+/.vs
+*.ver
+*.tri
+*.uv
