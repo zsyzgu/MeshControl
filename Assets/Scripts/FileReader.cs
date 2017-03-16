@@ -23,6 +23,14 @@ public class FileReader {
         return list.ToArray();
     }
 
+    static public Texture getTexture(string pathName)
+    {
+        byte[] data = File.ReadAllBytes("Assets\\Pictures\\" + pathName);
+        Texture2D texture = new Texture2D(1, 1);
+        texture.LoadImage(data);
+        return texture;
+    }
+
     static public int[] getTris(string pathName)
     {
         string[] tags = getTags(pathName);
@@ -31,18 +39,28 @@ public class FileReader {
             Debug.Log("Get Tris wrong from " + pathName);
         }
         int n = tags.Length;
-        int[] tris = new int[n * 2];
+        int[] tris = new int[n];
         for (int i = 0; i < n; i++)
         {
-            tris[n + i] = tris[i] = int.Parse(tags[i]);
-            if (i % 3 == 2)
-            {
-                int tmp = tris[i];
-                tris[i] = tris[i - 1];
-                tris[i - 1] = tmp;
-            }
+            tris[i] = int.Parse(tags[i]);
         }
         return tris;
+    }
+
+    static public int[] subTris(int[] tris, int s, int len, Vector3[] vertices)
+    {
+        int[] ret = new int[len];
+        for (int i = 0; i < len; i++)
+        {
+            ret[i] = tris[s + i];
+            if (i % 3 == 2 && Vector3.Cross(vertices[ret[i - 1]] - vertices[ret[i - 2]], vertices[ret[i]] - vertices[ret[i - 2]]).z > 0)
+            {
+                int tmp = ret[i - 1];
+                ret[i - 1] = ret[i];
+                ret[i] = tmp;
+            }
+        }
+        return ret;
     }
 
     static public Vector3[] getVertices(string pathName)
