@@ -5,7 +5,9 @@ using UnityEngine;
 public class FaceControl : MonoBehaviour
 {
     private Texture faceTexture;
-
+    private Texture leftEyeTexture;
+    private Texture rightEyeTexture;
+    private Texture mouseTexture;
     private Vector3[] vertices;
     private Vector2[] faceUV;
     private Vector2[] leftEyeUV;
@@ -19,6 +21,11 @@ public class FaceControl : MonoBehaviour
     private GameObject leftEye;
     private GameObject rightEye;
     private GameObject mouse;
+
+    private Mesh faceMesh;
+    private Mesh leftEyeMesh;
+    private Mesh rightEyeMesh;
+    private Mesh mouseMesh;
 
     void Start()
     {
@@ -38,80 +45,25 @@ public class FaceControl : MonoBehaviour
             }
         }
 
-        Mesh faceMesh = GetComponent<MeshFilter>().mesh = new Mesh();
-        Mesh leftEyeMesh = leftEye.GetComponent<MeshFilter>().mesh = new Mesh();
-        Mesh rightEyeMesh = rightEye.GetComponent<MeshFilter>().mesh = new Mesh();
-        Mesh mouseMesh = mouse.GetComponent<MeshFilter>().mesh = new Mesh();
+        faceMesh = GetComponent<MeshFilter>().mesh = new Mesh();
+        leftEyeMesh = leftEye.GetComponent<MeshFilter>().mesh = new Mesh();
+        rightEyeMesh = rightEye.GetComponent<MeshFilter>().mesh = new Mesh();
+        mouseMesh = mouse.GetComponent<MeshFilter>().mesh = new Mesh();
 
-        faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouseMesh.vertices = FileReader.getVertices("1.ver");
+        setVertices(FileReader.getVertices("face.ver"));
+        setTris(FileReader.getTris("face.tri"));
+        updateNormals();
 
-        faceMesh.uv = FileReader.getUV("face.uv");
-        leftEyeMesh.uv = FileReader.getUV("face.uv");
-        rightEyeMesh.uv = FileReader.getUV("face.uv");
-        mouseMesh.uv = FileReader.getUV("face.uv");
+        setModelUV(FileReader.getUV("model.uv"));
+        setLeftEyeUV(FileReader.getUV("lefteye.uv"));
+        setRightEyeUV(FileReader.getUV("righteye.uv"));
+        setMouseUV(FileReader.getUV("mouse.uv"));
 
-        int[] tris = FileReader.getTris("face.tri");
-        if (tris.Length >= 14 * 3)
-        {
-            int n = tris.Length / 3;
-            faceMesh.triangles = FileReader.subTris(tris, 0, (n - 14) * 3, faceMesh.vertices);
-            leftEyeMesh.triangles = FileReader.subTris(tris, (n - 14) * 3, 4 * 3, leftEyeMesh.vertices);
-            rightEyeMesh.triangles = FileReader.subTris(tris, (n - 10) * 3, 4 * 3, rightEyeMesh.vertices);
-            mouseMesh.triangles = FileReader.subTris(tris, (n - 6) * 3, 6 * 3, mouseMesh.vertices);
-        }
-        else
-        {
-            Debug.Log("Triangels number is not enough.");
-        }
-
-        faceMesh.RecalculateNormals();
-        leftEyeMesh.normals = rightEyeMesh.normals = mouseMesh.normals = faceMesh.normals;
-
-        faceTexture = FileReader.getTexture("zsyzgu.jpg");
-        GetComponent<Renderer>().material.SetTexture("_MainTex", faceTexture);
-        leftEye.GetComponent<Renderer>().material.SetTexture("_MainTex", faceTexture);
-        rightEye.GetComponent<Renderer>().material.SetTexture("_MainTex", faceTexture);
-        mouse.GetComponent<Renderer>().material.SetTexture("_MainTex", faceTexture);
+        setModelTexture(FileReader.getTexture("model.jpg"));
+        setLeftEyeTexture(FileReader.getTexture("lefteye.jpg"));
+        setRightEyeTexture(FileReader.getTexture("righteye.jpg"));
+        setMouseTexture(FileReader.getTexture("mouse.jpg"));
     }
-
-    /*void reduceMesh(ref Mesh mesh)
-    {
-        int n = mesh.vertices.Length;
-        int[] mapping = new int[n];
-        for (int i = 0; i < n; i++)
-        {
-            mapping[i] = -1;
-        }
-        int[] tris = mesh.triangles;
-        for (int i = 0; i < tris.Length; i++)
-        {
-            mapping[tris[i]] = 0;
-        }
-        int id = 0;
-        for (int i = 0; i < n; i++)
-        {
-            if (mapping[i] == 0)
-            {
-                mapping[i] = id++;
-            }
-        }
-        Vector3[] vertices = new Vector3[id];
-        Vector2[] uv = new Vector2[id];
-        id = 0;
-        for (int i = 0; i < n; i++)
-        {
-            if (mapping[i] == 0)
-            {
-                vertices[id] = mesh.vertices[i];
-                uv[id] = mesh.uv[i];
-                id++;
-            }
-        }
-        for (int i = 0; i < tris.Length; i++)
-        {
-            tris[i] = mapping[tris[i]];
-        }
-    }*/
 
 	void Update () {
         /*Vector3[] vertices = getFace();
@@ -119,16 +71,82 @@ public class FaceControl : MonoBehaviour
         {
             vertices[i] = vertices[i] + new Vector3(0, 0, 0.1f * Mathf.Sin(i * Time.time));
         }
-        setFace(vertices);*/
+        GetComponent<MeshFilter>().mesh.vertices = vertices;*/
     }
 
-    public Vector3[] getFace()
+    private int[] subTris(int[] tris, int s, int len, Vector3[] vertices)
     {
-        return GetComponent<MeshFilter>().mesh.vertices;
+        int[] ret = new int[len];
+        for (int i = 0; i < len; i++)
+        {
+            ret[i] = tris[s + i];
+            if (i % 3 == 2 && Vector3.Cross(vertices[ret[i - 1]] - vertices[ret[i - 2]], vertices[ret[i]] - vertices[ret[i - 2]]).z > 0)
+            {
+                int tmp = ret[i - 1];
+                ret[i - 1] = ret[i];
+                ret[i] = tmp;
+            }
+        }
+        return ret;
     }
 
-    public void setFace(Vector3[] vertices)
+    public void setModelTexture(Texture faceTexture)
     {
-        GetComponent<MeshFilter>().mesh.vertices = vertices;
+        GetComponent<Renderer>().material.SetTexture("_MainTex", faceTexture);
+    }
+
+    public void setModelUV(Vector2[] uv)
+    {
+        faceMesh.uv = uv;
+    }
+
+    public void setTris(int[] tris)
+    {
+        int n = tris.Length / 3;
+        faceMesh.triangles = subTris(tris, 0, (n - 14) * 3, faceMesh.vertices);
+        leftEyeMesh.triangles = subTris(tris, (n - 14) * 3, 4 * 3, leftEyeMesh.vertices);
+        rightEyeMesh.triangles = subTris(tris, (n - 10) * 3, 4 * 3, rightEyeMesh.vertices);
+        mouseMesh.triangles = subTris(tris, (n - 6) * 3, 6 * 3, mouseMesh.vertices);
+    }
+
+    public void setVertices(Vector3[] vertices)
+    {
+        faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouseMesh.vertices = vertices;
+    }
+    
+    public void updateNormals()
+    {
+        faceMesh.RecalculateNormals();
+        leftEyeMesh.normals = rightEyeMesh.normals = mouseMesh.normals = faceMesh.normals;
+    }
+
+    public void setLeftEyeTexture(Texture leftEyeTexture)
+    {
+        leftEye.GetComponent<Renderer>().material.SetTexture("_MainTex", leftEyeTexture);
+    }
+
+    public void setLeftEyeUV(Vector2[] uv)
+    {
+        leftEyeMesh.uv = uv;
+    }
+
+    public void setRightEyeTexture(Texture rightEyeTexture)
+    {
+        rightEye.GetComponent<Renderer>().material.SetTexture("_MainTex", rightEyeTexture);
+    }
+
+    public void setRightEyeUV(Vector2[] uv)
+    {
+        rightEyeMesh.uv = uv;
+    }
+
+    public void setMouseTexture(Texture mouseTexture)
+    {
+        mouse.GetComponent<Renderer>().material.SetTexture("_MainTex", mouseTexture);
+    }
+
+    public void setMouseUV(Vector2[] uv)
+    {
+        mouseMesh.uv = uv;
     }
 }

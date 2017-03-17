@@ -6,7 +6,7 @@ using UnityEngine;
 public class FileReader {
     static string[] getTags(string pathName)
     {
-        string str = File.ReadAllText("Assets\\Datas\\" + pathName);
+        string str = File.ReadAllText("Assets\\Data\\" + pathName);
         List<string> list = new List<string>();
         int st = 0;
         for (int i = 0; i < str.Length; i++)
@@ -47,22 +47,6 @@ public class FileReader {
         return tris;
     }
 
-    static public int[] subTris(int[] tris, int s, int len, Vector3[] vertices)
-    {
-        int[] ret = new int[len];
-        for (int i = 0; i < len; i++)
-        {
-            ret[i] = tris[s + i];
-            if (i % 3 == 2 && Vector3.Cross(vertices[ret[i - 1]] - vertices[ret[i - 2]], vertices[ret[i]] - vertices[ret[i - 2]]).z > 0)
-            {
-                int tmp = ret[i - 1];
-                ret[i - 1] = ret[i];
-                ret[i] = tmp;
-            }
-        }
-        return ret;
-    }
-
     static public Vector3[] getVertices(string pathName)
     {
         string[] tags = getTags(pathName);
@@ -74,7 +58,7 @@ public class FileReader {
         Vector3[] vertices = new Vector3[n];
         for (int i = 0; i < n; i++)
         {
-            vertices[i] = new Vector3(float.Parse(tags[i * 3]), -float.Parse(tags[i * 3 + 1]), float.Parse(tags[i * 3 + 2]) * 0.5f);
+            vertices[i] = new Vector3(float.Parse(tags[i * 3]), -float.Parse(tags[i * 3 + 1]), float.Parse(tags[i * 3 + 2]) * 0.5f) * 40;
         }
         return vertices;
     }
@@ -90,7 +74,7 @@ public class FileReader {
         Vector2[] uv = new Vector2[n];
         for (int i = 0; i < n; i++)
         {
-            uv[i] = new Vector2(float.Parse(tags[i * 2]), 1 - float.Parse(tags[i * 2 + 1]));
+            uv[i] = new Vector2(float.Parse(tags[i * 2]), float.Parse(tags[i * 2 + 1]));
         }
         return uv;
     }
