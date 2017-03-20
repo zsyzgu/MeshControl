@@ -100,35 +100,34 @@ public class Server : MonoBehaviour
         switch (id)
         {
             case 0: //model.jpg
-                faceControl.setModelTexture(parseToTexture(data));
+                faceControl.setModelTextureData(data);
                 break;
             case 1: //model.uv
-                faceControl.setModelUV(parseToVector2Array(data));
+                faceControl.setModelUVData(parseToVector2Array(data));
                 break;
             case 2: //face.ver
-                faceControl.setVertices(parseToVector3Array(data));
-                faceControl.updateNormals();
+                faceControl.setVerticesData(parseToVertices(data));
                 break;
             case 3: //face.tri
-                faceControl.setTris(parseToIntArray(data));
+                //faceControl.setTris(parseToIntArray(data));
                 break;
             case 4: //lefteye.jpg
-                faceControl.setLeftEyeTexture(parseToTexture(data));
+                faceControl.setLeftEyeTextureData(data);
                 break;
             case 5: //lefteye.uv
-                faceControl.setLeftEyeUV(parseToVector2Array(data));
+                faceControl.setLeftEyeUVData(parseToVector2Array(data));
                 break;
             case 6: //righteye.jpg
-                faceControl.setRightEyeTexture(parseToTexture(data));
+                faceControl.setRightEyeTextureData(data);
                 break;
             case 7: //righteye.uv
-                faceControl.setRightEyeUV(parseToVector2Array(data));
+                faceControl.setRightEyeUVData(parseToVector2Array(data));
                 break;
             case 8: //mouse.jpg
-                faceControl.setMouseTexture(parseToTexture(data));
+                faceControl.setMouseTextureData(data);
                 break;
             case 9: //mouse.uv
-                faceControl.setMouseUV(parseToVector2Array(data));
+                faceControl.setMouseUVData(parseToVector2Array(data));
                 break;
             default:
                 Debug.Log("Unknown cmd.");
@@ -177,14 +176,14 @@ public class Server : MonoBehaviour
         return vector2Array;
     }
 
-    private Vector3[] parseToVector3Array(byte[] data)
+    private Vector3[] parseToVertices(byte[] data)
     {
         float[] floatArray = parseToFloatArray(data);
         int n = floatArray.Length / 3;
         Vector3[] vector3Array = new Vector3[n];
         for (int i = 0; i < n; i++)
         {
-            vector3Array[i] = new Vector3(floatArray[i * 3], floatArray[i * 3 + 1], floatArray[i * 3 + 2]);
+            vector3Array[i] = new Vector3(floatArray[i * 3], -floatArray[i * 3 + 1], floatArray[i * 3 + 2] * 0.5f) * 40f;
         }
         return vector3Array;
     }

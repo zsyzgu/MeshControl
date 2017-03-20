@@ -4,20 +4,6 @@ using UnityEngine;
 
 public class FaceControl : MonoBehaviour
 {
-    private Texture faceTexture;
-    private Texture leftEyeTexture;
-    private Texture rightEyeTexture;
-    private Texture mouseTexture;
-    private Vector3[] vertices;
-    private Vector2[] faceUV;
-    private Vector2[] leftEyeUV;
-    private Vector2[] rightEyeUV;
-    private Vector2[] mouseUV;
-    private int[] faceTris;
-    private int[] leftEyeTris;
-    private int[] rightEyeTris;
-    private int[] mouseTris;
-
     private GameObject leftEye;
     private GameObject rightEye;
     private GameObject mouse;
@@ -26,6 +12,18 @@ public class FaceControl : MonoBehaviour
     private Mesh leftEyeMesh;
     private Mesh rightEyeMesh;
     private Mesh mouseMesh;
+
+    private byte[] modelTextureData = null;
+    private byte[] leftEyeTextureData = null;
+    private byte[] rightEyeTextureData = null;
+    private byte[] mouseTextureData = null;
+
+    private Vector2[] faceUVData = null;
+    private Vector2[] leftEyeUVData = null;
+    private Vector2[] rightEyeUVData = null;
+    private Vector2[] mouseUVData = null;
+
+    private Vector3[] vertices = null;
 
     void Start()
     {
@@ -49,15 +47,16 @@ public class FaceControl : MonoBehaviour
         leftEyeMesh = leftEye.GetComponent<MeshFilter>().mesh = new Mesh();
         rightEyeMesh = rightEye.GetComponent<MeshFilter>().mesh = new Mesh();
         mouseMesh = mouse.GetComponent<MeshFilter>().mesh = new Mesh();
-
-        setVertices(FileReader.getVertices("face.ver"));
+        
+        faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouseMesh.vertices = FileReader.getVertices("face.ver");
         setTris(FileReader.getTris("face.tri"));
-        updateNormals();
+        faceMesh.RecalculateNormals();
+        leftEyeMesh.normals = rightEyeMesh.normals = mouseMesh.normals = faceMesh.normals;
 
-        setModelUV(FileReader.getUV("model.uv"));
-        setLeftEyeUV(FileReader.getUV("lefteye.uv"));
-        setRightEyeUV(FileReader.getUV("righteye.uv"));
-        setMouseUV(FileReader.getUV("mouse.uv"));
+        faceMesh.uv = FileReader.getUV("model.uv");
+        leftEyeMesh.uv = FileReader.getUV("lefteye.uv");
+        rightEyeMesh.uv = FileReader.getUV("righteye.uv");
+        mouseMesh.uv = FileReader.getUV("mouse.uv");
 
         setModelTexture(FileReader.getTexture("model.jpg"));
         setLeftEyeTexture(FileReader.getTexture("lefteye.jpg"));
@@ -72,6 +71,15 @@ public class FaceControl : MonoBehaviour
             vertices[i] = vertices[i] + new Vector3(0, 0, 0.1f * Mathf.Sin(i * Time.time));
         }
         GetComponent<MeshFilter>().mesh.vertices = vertices;*/
+        updateVertices();
+        updateModelTexture();
+        updateLeftEyeTexture();
+        updateRightEyeTexture();
+        updateMouseTexture();
+        updateModelUV();
+        updateLeftEyeUV();
+        updateRightEyeUV();
+        updateMouseUV();
     }
 
     private int[] subTris(int[] tris, int s, int len, Vector3[] vertices)
@@ -95,9 +103,34 @@ public class FaceControl : MonoBehaviour
         GetComponent<Renderer>().material.SetTexture("_MainTex", faceTexture);
     }
 
-    public void setModelUV(Vector2[] uv)
+    private void updateModelTexture()
     {
-        faceMesh.uv = uv;
+        if (modelTextureData != null)
+        {
+            Texture2D faceTexture = new Texture2D(1, 1);
+            faceTexture.LoadImage(modelTextureData);
+            setModelTexture(faceTexture);
+            modelTextureData = null;
+        }
+    }
+
+    public void setModelTextureData(byte[] modelTextureData)
+    {
+        this.modelTextureData = modelTextureData;
+    }
+
+    private void updateModelUV()
+    {
+        if (faceUVData != null)
+        {
+            faceMesh.uv = faceUVData;
+            faceUVData = null;
+        }
+    }
+
+    public void setModelUVData(Vector2[] uv)
+    {
+        faceUVData = uv;
     }
 
     public void setTris(int[] tris)
@@ -109,15 +142,20 @@ public class FaceControl : MonoBehaviour
         mouseMesh.triangles = subTris(tris, (n - 6) * 3, 6 * 3, mouseMesh.vertices);
     }
 
-    public void setVertices(Vector3[] vertices)
+    private void updateVertices()
     {
-        faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouseMesh.vertices = vertices;
+        if (vertices != null)
+        {
+            faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouseMesh.vertices = vertices;
+            faceMesh.RecalculateNormals();
+            leftEyeMesh.normals = rightEyeMesh.normals = mouseMesh.normals = faceMesh.normals;
+            vertices = null;
+        }
     }
-    
-    public void updateNormals()
+
+    public void setVerticesData(Vector3[] vertices)
     {
-        faceMesh.RecalculateNormals();
-        leftEyeMesh.normals = rightEyeMesh.normals = mouseMesh.normals = faceMesh.normals;
+        this.vertices = vertices;
     }
 
     public void setLeftEyeTexture(Texture leftEyeTexture)
@@ -125,9 +163,34 @@ public class FaceControl : MonoBehaviour
         leftEye.GetComponent<Renderer>().material.SetTexture("_MainTex", leftEyeTexture);
     }
 
-    public void setLeftEyeUV(Vector2[] uv)
+    private void updateLeftEyeTexture()
     {
-        leftEyeMesh.uv = uv;
+        if (leftEyeTextureData != null)
+        {
+            Texture2D leftEyeTexture = new Texture2D(1, 1);
+            leftEyeTexture.LoadImage(leftEyeTextureData);
+            setLeftEyeTexture(leftEyeTexture);
+            leftEyeTextureData = null;
+        }
+    }
+
+    public void setLeftEyeTextureData(byte[] leftEyeTextureData)
+    {
+        this.leftEyeTextureData = leftEyeTextureData;
+    }
+
+    private void updateLeftEyeUV()
+    {
+        if (leftEyeUVData != null)
+        {
+            leftEyeMesh.uv = leftEyeUVData;
+            leftEyeUVData = null;
+        }
+    }
+
+    public void setLeftEyeUVData(Vector2[] uv)
+    {
+        leftEyeUVData = uv;
     }
 
     public void setRightEyeTexture(Texture rightEyeTexture)
@@ -135,9 +198,34 @@ public class FaceControl : MonoBehaviour
         rightEye.GetComponent<Renderer>().material.SetTexture("_MainTex", rightEyeTexture);
     }
 
-    public void setRightEyeUV(Vector2[] uv)
+    private void updateRightEyeTexture()
     {
-        rightEyeMesh.uv = uv;
+        if (rightEyeTextureData != null)
+        {
+            Texture2D rightEyeTexture = new Texture2D(1, 1);
+            rightEyeTexture.LoadImage(rightEyeTextureData);
+            setRightEyeTexture(rightEyeTexture);
+            rightEyeTextureData = null;
+        }
+    }
+
+    public void setRightEyeTextureData(byte[] rightEyeTextureData)
+    {
+        this.rightEyeTextureData = rightEyeTextureData;
+    }
+
+    private void updateRightEyeUV()
+    {
+        if (rightEyeUVData != null)
+        {
+            rightEyeMesh.uv = rightEyeUVData;
+            rightEyeUVData = null;
+        }
+    }
+
+    public void setRightEyeUVData(Vector2[] uv)
+    {
+        rightEyeUVData = uv;
     }
 
     public void setMouseTexture(Texture mouseTexture)
@@ -145,8 +233,33 @@ public class FaceControl : MonoBehaviour
         mouse.GetComponent<Renderer>().material.SetTexture("_MainTex", mouseTexture);
     }
 
-    public void setMouseUV(Vector2[] uv)
+    private void updateMouseTexture()
     {
-        mouseMesh.uv = uv;
+        if (mouseTextureData != null)
+        {
+            Texture2D mouseTexture = new Texture2D(1, 1);
+            mouseTexture.LoadImage(mouseTextureData);
+            setMouseTexture(mouseTexture);
+            mouseTextureData = null;
+        }
+    }
+
+    public void setMouseTextureData(byte[] mouseTextureData)
+    {
+        this.mouseTextureData = mouseTextureData;
+    }
+
+    private void updateMouseUV()
+    {
+        if (mouseUVData != null)
+        {
+            mouseMesh.uv = mouseUVData;
+            mouseUVData = null;
+        }
+    }
+
+    public void setMouseUVData(Vector2[] uv)
+    {
+        mouseUVData = uv;
     }
 }
