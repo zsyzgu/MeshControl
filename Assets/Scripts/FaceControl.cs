@@ -47,8 +47,6 @@ public class FaceControl : MonoBehaviour
         leftEyeMesh = leftEye.GetComponent<MeshFilter>().mesh = new Mesh();
         rightEyeMesh = rightEye.GetComponent<MeshFilter>().mesh = new Mesh();
         mouthMesh = mouth.GetComponent<MeshFilter>().mesh = new Mesh();
-
-        localStart();
     }
 
 	void Update () {

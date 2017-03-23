@@ -6,90 +6,29 @@ using System.IO;
 using System;
 using System.Text;
 
-public class Server : MonoBehaviour
+public class FaceServer : UniversalServer
 {
-    const int PORT = 6789;
-    private Thread mainThread = null;
     private FaceControl faceControl = null;
+
+    void Awake()
+    {
+        faceControl = GameObject.Find("Face").GetComponent<FaceControl>();
+        startServer(5001);
+    }
 
     void OnApplicationQuit()
     {
         endServer();
     }
 
-    void Awake()
+    protected override bool loop(StreamReader sr, StreamWriter sw)
     {
-        faceControl = GameObject.Find("Face").GetComponent<FaceControl>();
-        startServer();
-    }
-
-    void Update()
-    {
-
-    }
-
-    private void startServer()
-    {
-        string ipAddress = Network.player.ipAddress;
-        mainThread = new Thread(() => hostServer(ipAddress));
-        mainThread.Start();
-    }
-
-    private void hostServer(string ipAddress)
-    {
-        IPAddress serverIP = IPAddress.Parse(ipAddress);
-        TcpListener listener = new TcpListener(serverIP, PORT);
-
-        listener.Start();
-        while (mainThread != null)
-        {
-            if (listener.Pending())
-            {
-                TcpClient client = listener.AcceptTcpClient();
-                Thread thread = new Thread(() => msgThread(client));
-                thread.Start();
-            }
-            Thread.Sleep(10);
-        }
-        listener.Stop();
-    }
-
-    private void msgThread(TcpClient client)
-    {
-        Stream sr = new StreamReader(client.GetStream()).BaseStream;
-
-        while (mainThread != null)
-        {
-            byte[] info = readBytes(sr, 5);
-            int id = info[0];
-            int len = BitConverter.ToInt32(info, 1);
-            byte[] data = readBytes(sr, len);
-            cmd(id, data);
-        }
-
-        client.Close();
-    }
-
-    private void endServer()
-    {
-        mainThread = null;
-    }
-
-    private byte[] readBytes(Stream sr, int len)
-    {
-        byte[] buffer = new byte[len];
-        int offset = 0;
-        int left = len;
-        while (mainThread != null && left > 0)
-        {
-            int ret = sr.Read(buffer, offset, left);
-            if (ret > 0)
-            {
-                left -= ret;
-                offset += ret;
-            }
-        }
-        return buffer;
+        byte[] info = readBytes(sr, 5);
+        int id = info[0];
+        int len = BitConverter.ToInt32(info, 1);
+        byte[] data = readBytes(sr, len);
+        cmd(id, data);
+        return true;
     }
 
     private void cmd(int id, byte[] data)
