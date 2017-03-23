@@ -1,6 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.IO;
+using System;
 
 public class FaceControl : MonoBehaviour
 {
@@ -122,7 +127,7 @@ public class FaceControl : MonoBehaviour
     private void localStart()
     {
         faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouthMesh.vertices = FileReader.getVertices("face.ver");
-        setTris(FileReader.getTris("face.tri"));
+        triangles = FileReader.getTris("face.tri");
         updateNormals();
 
         faceMesh.uv = FileReader.getUV("model.uv");
@@ -158,59 +163,96 @@ public class FaceControl : MonoBehaviour
         leftEyeMesh.normals = rightEyeMesh.normals = mouthMesh.normals = faceMesh.normals;
     }
 
-    public void setModelTexture(byte[] modelTexture)
+    public void cmd(int id, byte[] data)
     {
-        this.modelTexture = modelTexture;
+        switch (id)
+        {
+            case 0: //model.jpg
+                modelTexture = data;
+                break;
+            case 1: //model.uv
+                faceUV = parseToVector2Array(data);
+                break;
+            case 2: //face.ver
+                vertices = parseToVertices(data);
+                break;
+            case 3: //face.tri
+                triangles = parseToIntArray(data);
+                break;
+            case 4: //lefteye.jpg
+                leftEyeTexture = data;
+                break;
+            case 5: //lefteye.uv
+                leftEyeUV = parseToVector2Array(data);
+                break;
+            case 6: //righteye.jpg
+                rightEyeTexture = data;
+                break;
+            case 7: //righteye.uv
+                rightEyeUV = parseToVector2Array(data);
+                break;
+            case 8: //mouth.jpg
+                mouthTexture = data;
+                break;
+            case 9: //mouth.uv
+                mouthUV = parseToVector2Array(data);
+                break;
+            default:
+                Debug.Log("Unknown cmd.");
+                break;
+        }
     }
 
-    public void setModelUV(Vector2[] uv)
+    private Texture parseToTexture(byte[] data)
     {
-        this.faceUV = uv;
+        Texture2D texture = new Texture2D(1, 1);
+        texture.LoadImage(data);
+        return texture;
     }
 
-    public void setTris(int[] tris)
+    private int[] parseToIntArray(byte[] data)
     {
-        this.triangles = tris;
+        int n = data.Length / 4;
+        int[] intArray = new int[n];
+        for (int i = 0; i < n; i++)
+        {
+            intArray[i] = BitConverter.ToInt32(data, i * 4);
+        }
+        return intArray;
     }
 
-    public void setVertices(Vector3[] vertices)
+    private float[] parseToFloatArray(byte[] data)
     {
-        this.vertices = vertices;
+        int n = data.Length / 4;
+        float[] floatArray = new float[n];
+        for (int i = 0; i < n; i++)
+        {
+            floatArray[i] = BitConverter.ToSingle(data, i * 4);
+        }
+        return floatArray;
     }
 
-    public void setLeftEyeTexture(byte[] leftEyeTexture)
+    private Vector2[] parseToVector2Array(byte[] data)
     {
-        this.leftEyeTexture = leftEyeTexture;
+        float[] floatArray = parseToFloatArray(data);
+        int n = floatArray.Length / 2;
+        Vector2[] vector2Array = new Vector2[n];
+        for (int i = 0; i < n; i++)
+        {
+            vector2Array[i] = new Vector2(floatArray[i * 2], floatArray[i * 2 + 1]);
+        }
+        return vector2Array;
     }
 
-    public void setLeftEyeUV(Vector2[] uv)
+    private Vector3[] parseToVertices(byte[] data)
     {
-        this.leftEyeUV = uv;
-    }
-
-    public void setRightEyeTexture(byte[] rightEyeTexture)
-    {
-        this.rightEyeTexture = rightEyeTexture;
-    }
-
-    public void setRightEyeUV(Vector2[] uv)
-    {
-        this.rightEyeUV = uv;
-    }
-
-    public void setMouthTexture(byte[] mouthTexture)
-    {
-        this.mouthTexture = mouthTexture;
-    }
-
-    public void setMouthUV(Vector2[] uv)
-    {
-        this.mouthUV = uv;
-    }
-
-    public void setTransform(Vector3 position, Vector3 rotation)
-    {
-        transform.position = position;
-        transform.eulerAngles = rotation;
+        float[] floatArray = parseToFloatArray(data);
+        int n = floatArray.Length / 3;
+        Vector3[] vector3Array = new Vector3[n];
+        for (int i = 0; i < n; i++)
+        {
+            vector3Array[i] = new Vector3(floatArray[i * 3], -floatArray[i * 3 + 1], floatArray[i * 3 + 2] * 0.5f);
+        }
+        return vector3Array;
     }
 }
