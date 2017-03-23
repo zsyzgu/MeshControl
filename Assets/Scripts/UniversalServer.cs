@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using System;
 using System.IO;
+using System.Text;
 #if WINDOWS_UWP
 using System.Threading.Tasks;
 using Windows.Networking;
@@ -16,7 +18,15 @@ abstract public class UniversalServer : UniversalSocket
     private int port;
 
 #if WINDOWS_UWP
+    protected void startServer(int port)
+    {
 
+    }
+
+    protected void endServer()
+    {
+
+    }
 #else
     protected void startServer(int port)
     {
@@ -51,13 +61,7 @@ abstract public class UniversalServer : UniversalSocket
         StreamReader sr = new StreamReader(client.GetStream());
         StreamWriter sw = new StreamWriter(client.GetStream());
 
-        while (mainThread != null)
-        {
-            if (loop(sr, sw) == false)
-            {
-                break;
-            }
-        }
+        run(sr, sw);
 
         client.Close();
     }

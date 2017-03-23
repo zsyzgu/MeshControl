@@ -21,14 +21,16 @@ public class FaceServer : UniversalServer
         endServer();
     }
 
-    protected override bool loop(StreamReader sr, StreamWriter sw)
+    protected override void run(StreamReader sr, StreamWriter sw)
     {
-        byte[] info = readBytes(sr, 5);
-        int id = info[0];
-        int len = BitConverter.ToInt32(info, 1);
-        byte[] data = readBytes(sr, len);
-        cmd(id, data);
-        return true;
+        while (mainThread != null)
+        {
+            byte[] info = readBytes(sr, 5);
+            int id = info[0];
+            int len = BitConverter.ToInt32(info, 1);
+            byte[] data = readBytes(sr, len);
+            cmd(id, data);
+        }
     }
 
     private void cmd(int id, byte[] data)
