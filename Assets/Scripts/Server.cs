@@ -57,12 +57,9 @@ public class Server : MonoBehaviour
     private void msgThread(TcpClient client)
     {
         Stream sr = new StreamReader(client.GetStream()).BaseStream;
-        Stream sw = new StreamWriter(client.GetStream()).BaseStream;
 
         while (mainThread != null)
         {
-            sw.WriteByte(0);
-            sw.Flush();
             byte[] info = readBytes(sr, 5);
             int id = info[0];
             int len = BitConverter.ToInt32(info, 1);
@@ -95,39 +92,41 @@ public class Server : MonoBehaviour
         return buffer;
     }
 
+    int times = 0;
+
     private void cmd(int id, byte[] data)
     {
         switch (id)
         {
             case 0: //model.jpg
-                faceControl.setModelTextureData(data);
+                faceControl.setModelTexture(data);
                 break;
             case 1: //model.uv
-                faceControl.setModelUVData(parseToVector2Array(data));
+                faceControl.setModelUV(parseToVector2Array(data));
                 break;
             case 2: //face.ver
-                faceControl.setVerticesData(parseToVertices(data));
+                faceControl.setVertices(parseToVertices(data));
                 break;
             case 3: //face.tri
-                //faceControl.setTris(parseToIntArray(data));
+                faceControl.setTris(parseToIntArray(data));
                 break;
             case 4: //lefteye.jpg
-                faceControl.setLeftEyeTextureData(data);
+                faceControl.setLeftEyeTexture(data);
                 break;
             case 5: //lefteye.uv
-                faceControl.setLeftEyeUVData(parseToVector2Array(data));
+                faceControl.setLeftEyeUV(parseToVector2Array(data));
                 break;
             case 6: //righteye.jpg
-                faceControl.setRightEyeTextureData(data);
+                faceControl.setRightEyeTexture(data);
                 break;
             case 7: //righteye.uv
-                faceControl.setRightEyeUVData(parseToVector2Array(data));
+                faceControl.setRightEyeUV(parseToVector2Array(data));
                 break;
             case 8: //mouse.jpg
-                faceControl.setMouseTextureData(data);
+                faceControl.setMouseTexture(data);
                 break;
             case 9: //mouse.uv
-                faceControl.setMouseUVData(parseToVector2Array(data));
+                faceControl.setMouseUV(parseToVector2Array(data));
                 break;
             default:
                 Debug.Log("Unknown cmd.");
