@@ -6,23 +6,23 @@ public class FaceControl : MonoBehaviour
 {
     private GameObject leftEye;
     private GameObject rightEye;
-    private GameObject mouse;
+    private GameObject mouth;
 
     private Mesh faceMesh;
     private Mesh leftEyeMesh;
     private Mesh rightEyeMesh;
-    private Mesh mouseMesh;
+    private Mesh mouthMesh;
 
     private Vector3[] vertices = null;
     private int[] triangles = null;
     private byte[] modelTexture = null;
     private byte[] leftEyeTexture = null;
     private byte[] rightEyeTexture = null;
-    private byte[] mouseTexture = null;
+    private byte[] mouthTexture = null;
     private Vector2[] faceUV = null;
     private Vector2[] leftEyeUV = null;
     private Vector2[] rightEyeUV = null;
-    private Vector2[] mouseUV = null;
+    private Vector2[] mouthUV = null;
 
 
     void Start()
@@ -37,22 +37,24 @@ public class FaceControl : MonoBehaviour
             {
                 rightEye = trans.gameObject;
             }
-            if (trans.name == "Mouse")
+            if (trans.name == "Mouth")
             {
-                mouse = trans.gameObject;
+                mouth = trans.gameObject;
             }
         }
 
         faceMesh = GetComponent<MeshFilter>().mesh = new Mesh();
         leftEyeMesh = leftEye.GetComponent<MeshFilter>().mesh = new Mesh();
         rightEyeMesh = rightEye.GetComponent<MeshFilter>().mesh = new Mesh();
-        mouseMesh = mouse.GetComponent<MeshFilter>().mesh = new Mesh();
+        mouthMesh = mouth.GetComponent<MeshFilter>().mesh = new Mesh();
+
+        localStart();
     }
 
 	void Update () {
         if (vertices != null)
         {
-            faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouseMesh.vertices = vertices;
+            faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouthMesh.vertices = vertices;
             updateNormals();
             vertices = null;
         }
@@ -63,7 +65,7 @@ public class FaceControl : MonoBehaviour
             faceMesh.triangles = subTris(triangles, 0, (n - 14) * 3, faceMesh.vertices);
             leftEyeMesh.triangles = subTris(triangles, (n - 14) * 3, 4 * 3, leftEyeMesh.vertices);
             rightEyeMesh.triangles = subTris(triangles, (n - 10) * 3, 4 * 3, rightEyeMesh.vertices);
-            mouseMesh.triangles = subTris(triangles, (n - 6) * 3, 6 * 3, mouseMesh.vertices);
+            mouthMesh.triangles = subTris(triangles, (n - 6) * 3, 6 * 3, mouthMesh.vertices);
             updateNormals();
             triangles = null;
         }
@@ -89,12 +91,12 @@ public class FaceControl : MonoBehaviour
             rightEye.GetComponent<Renderer>().material.SetTexture("_MainTex", texture);
             rightEyeTexture = null;
         }
-        if (mouseTexture != null)
+        if (mouthTexture != null)
         {
             Texture2D texture = new Texture2D(1, 1);
-            texture.LoadImage(mouseTexture);
-            mouse.GetComponent<Renderer>().material.SetTexture("_MainTex", texture);
-            mouseTexture = null;
+            texture.LoadImage(mouthTexture);
+            mouth.GetComponent<Renderer>().material.SetTexture("_MainTex", texture);
+            mouthTexture = null;
         }
 
         if (faceUV != null)
@@ -112,11 +114,28 @@ public class FaceControl : MonoBehaviour
             rightEyeMesh.uv = rightEyeUV;
             rightEyeUV = null;
         }
-        if (mouseUV != null)
+        if (mouthUV != null)
         {
-            mouseMesh.uv = mouseUV;
-            mouseUV = null;
+            mouthMesh.uv = mouthUV;
+            mouthUV = null;
         }
+    }
+
+    private void localStart()
+    {
+        faceMesh.vertices = leftEyeMesh.vertices = rightEyeMesh.vertices = mouthMesh.vertices = FileReader.getVertices("face.ver");
+        setTris(FileReader.getTris("face.tri"));
+        updateNormals();
+
+        faceMesh.uv = FileReader.getUV("model.uv");
+        leftEyeMesh.uv = FileReader.getUV("lefteye.uv");
+        rightEyeMesh.uv = FileReader.getUV("righteye.uv");
+        mouthMesh.uv = FileReader.getUV("mouth.uv");
+
+        GetComponent<Renderer>().material.SetTexture("_MainTex", FileReader.getTexture("model.jpg"));
+        leftEye.GetComponent<Renderer>().material.SetTexture("_MainTex", FileReader.getTexture("lefteye.jpg"));
+        rightEye.GetComponent<Renderer>().material.SetTexture("_MainTex", FileReader.getTexture("righteye.jpg"));
+        mouth.GetComponent<Renderer>().material.SetTexture("_MainTex", FileReader.getTexture("mouth.jpg"));
     }
 
     private int[] subTris(int[] tris, int s, int len, Vector3[] vertices)
@@ -138,7 +157,7 @@ public class FaceControl : MonoBehaviour
     private void updateNormals()
     {
         faceMesh.RecalculateNormals();
-        leftEyeMesh.normals = rightEyeMesh.normals = mouseMesh.normals = faceMesh.normals;
+        leftEyeMesh.normals = rightEyeMesh.normals = mouthMesh.normals = faceMesh.normals;
     }
 
     public void setModelTexture(byte[] modelTexture)
@@ -181,13 +200,19 @@ public class FaceControl : MonoBehaviour
         this.rightEyeUV = uv;
     }
 
-    public void setMouseTexture(byte[] mouseTexture)
+    public void setMouthTexture(byte[] mouthTexture)
     {
-        this.mouseTexture = mouseTexture;
+        this.mouthTexture = mouthTexture;
     }
 
-    public void setMouseUV(Vector2[] uv)
+    public void setMouthUV(Vector2[] uv)
     {
-        this.mouseUV = uv;
+        this.mouthUV = uv;
+    }
+
+    public void setTransform(Vector3 position, Vector3 rotation)
+    {
+        transform.position = position;
+        transform.eulerAngles = rotation;
     }
 }

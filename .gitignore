@@ -2,6 +2,7 @@
 /App
 /Release
 /Temp
+/UWP
 /.vs
 *.ver
 *.tri

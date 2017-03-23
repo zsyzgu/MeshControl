@@ -58,7 +58,7 @@ public class FileReader {
         Vector3[] vertices = new Vector3[n];
         for (int i = 0; i < n; i++)
         {
-            vertices[i] = new Vector3(float.Parse(tags[i * 3]), -float.Parse(tags[i * 3 + 1]), float.Parse(tags[i * 3 + 2]) * 0.5f) * 40;
+            vertices[i] = new Vector3(float.Parse(tags[i * 3]), -float.Parse(tags[i * 3 + 1]), float.Parse(tags[i * 3 + 2]) * 0.5f);
         }
         return vertices;
     }

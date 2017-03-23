@@ -92,8 +92,6 @@ public class Server : MonoBehaviour
         return buffer;
     }
 
-    int times = 0;
-
     private void cmd(int id, byte[] data)
     {
         switch (id)
@@ -122,11 +120,11 @@ public class Server : MonoBehaviour
             case 7: //righteye.uv
                 faceControl.setRightEyeUV(parseToVector2Array(data));
                 break;
-            case 8: //mouse.jpg
-                faceControl.setMouseTexture(data);
+            case 8: //mouth.jpg
+                faceControl.setMouthTexture(data);
                 break;
-            case 9: //mouse.uv
-                faceControl.setMouseUV(parseToVector2Array(data));
+            case 9: //mouth.uv
+                faceControl.setMouthUV(parseToVector2Array(data));
                 break;
             default:
                 Debug.Log("Unknown cmd.");
@@ -182,7 +180,7 @@ public class Server : MonoBehaviour
         Vector3[] vector3Array = new Vector3[n];
         for (int i = 0; i < n; i++)
         {
-            vector3Array[i] = new Vector3(floatArray[i * 3], -floatArray[i * 3 + 1], floatArray[i * 3 + 2] * 0.5f) * 40f;
+            vector3Array[i] = new Vector3(floatArray[i * 3], -floatArray[i * 3 + 1], floatArray[i * 3 + 2] * 0.5f);
         }
         return vector3Array;
     }
