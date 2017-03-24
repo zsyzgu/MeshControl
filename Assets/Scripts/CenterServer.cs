@@ -8,6 +8,9 @@ using System.Threading;
 public class CenterServer : UniversalServer {
     BlockingQueue<byte[]> queue;
 
+#if WINDOWS_UWP
+
+#else
     void Awake()
     {
         queue = new BlockingQueue<byte[]>();
@@ -19,6 +22,7 @@ public class CenterServer : UniversalServer {
         queue.Stop();
         endServer();
     }
+#endif
 
     protected override void run(StreamReader sr, StreamWriter sw)
     {

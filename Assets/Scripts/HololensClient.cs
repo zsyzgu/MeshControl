@@ -8,6 +8,7 @@ public class HololensClient : UniveralClient
 {
     private FaceControl faceControl = null;
 
+#if WINDOWS_UWP
     void Awake()
     {
         faceControl = GameObject.Find("Face").GetComponent<FaceControl>();
@@ -18,6 +19,9 @@ public class HololensClient : UniveralClient
     {
         endClient();
     }
+#else
+
+#endif
 
     protected override void run(StreamReader sr, StreamWriter sw)
     {

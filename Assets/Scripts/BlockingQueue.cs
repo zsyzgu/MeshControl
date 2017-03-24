@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using UnityEngine;
 
 public class BlockingQueue<T> {
     private readonly Queue<T> _queue = new Queue<T>();
@@ -17,7 +18,14 @@ public class BlockingQueue<T> {
             {
                 return false;
             }
-            _queue.Enqueue(item);
+            if (_queue.Count <= 100)
+            {
+                _queue.Enqueue(item);
+            } else
+            {
+                Debug.Log("queue is too long");
+                _queue.Clear();
+            }
             Monitor.Pulse(_queue);
         }
         return true;

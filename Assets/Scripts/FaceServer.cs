@@ -9,10 +9,15 @@ using System.Text;
 public class FaceServer : UniversalServer
 {
     private CenterServer centerServer = null;
+    private FaceControl faceControl = null;
 
+#if WINDOWS_UWP
+
+#else
     void Awake()
     {
         centerServer = GameObject.Find("Center").GetComponent<CenterServer>();
+        faceControl = GameObject.Find("Face").GetComponent<FaceControl>();
         startServer(5001);
     }
 
@@ -20,6 +25,7 @@ public class FaceServer : UniversalServer
     {
         endServer();
     }
+#endif
 
     protected override void run(StreamReader sr, StreamWriter sw)
     {
@@ -29,6 +35,7 @@ public class FaceServer : UniversalServer
             byte[] data;
             readPacket(sr, out id, out len, out data);
             centerServer.addPacket(id, len, data);
+            faceControl.cmd(id, data);
         }
     }
 }
