@@ -8,11 +8,11 @@ using System.Text;
 
 public class FaceServer : UniversalServer
 {
-    private FaceControl faceControl = null;
+    private CenterServer centerServer = null;
 
     void Awake()
     {
-        faceControl = GameObject.Find("Face").GetComponent<FaceControl>();
+        centerServer = GameObject.Find("Center").GetComponent<CenterServer>();
         startServer(5001);
     }
 
@@ -25,11 +25,10 @@ public class FaceServer : UniversalServer
     {
         while (mainThread != null)
         {
-            byte[] info = readBytes(sr, 5);
-            int id = info[0];
-            int len = BitConverter.ToInt32(info, 1);
-            byte[] data = readBytes(sr, len);
-            faceControl.cmd(id, data);
+            int id, len;
+            byte[] data;
+            readPacket(sr, out id, out len, out data);
+            centerServer.addPacket(id, len, data);
         }
     }
 }

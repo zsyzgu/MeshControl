@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.IO;
+using System;
 #if WINDOWS_UWP
 using System.Threading.Tasks;
 using Windows.Networking;
@@ -37,13 +38,20 @@ abstract public class UniversalSocket : MonoBehaviour
         return buffer;
     }
 
-    protected void copyStream(StreamReader sr, StreamWriter sw)
+    protected void readPacket(StreamReader sr, out int id, out int len, out byte[] data)
     {
-        byte[] buffer = new byte[32768];
-        int len = 0;
-        while (mainThread != null && (len = sr.BaseStream.Read(buffer, 0, buffer.Length)) > 0)
-        {
-            sw.BaseStream.Write(buffer, 0, len);
-        }
+        byte[] info = readBytes(sr, 5);
+        id = info[0];
+        len = BitConverter.ToInt32(info, 1);
+        data = readBytes(sr, len);
+    }
+
+    protected byte[] generatePacket(int id, int len, byte[] data)
+    {
+        byte[] buffer = new byte[data.Length + 5];
+        buffer[0] = (byte)id;
+        BitConverter.GetBytes(len).CopyTo(buffer, 1);
+        data.CopyTo(buffer, 5);
+        return buffer;
     }
 }

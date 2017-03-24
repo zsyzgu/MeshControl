@@ -78,9 +78,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\BlockingQueue.cs" />
+    <Compile Include="Assets\Scripts\CenterServer.cs" />
     <Compile Include="Assets\Scripts\FaceControl.cs" />
     <Compile Include="Assets\Scripts\FaceServer.cs" />
     <Compile Include="Assets\Scripts\FileReader.cs" />
+    <Compile Include="Assets\Scripts\HololensClient.cs" />
     <Compile Include="Assets\Scripts\UniveralClient.cs" />
     <Compile Include="Assets\Scripts\UniversalServer.cs" />
     <Compile Include="Assets\Scripts\UniversalSocket.cs" />

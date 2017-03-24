@@ -19,7 +19,7 @@ abstract public class UniveralClient : UniversalSocket
     int port;
 
 #if WINDOWS_UWP
-    void startClient(string serverIP, int port)
+    protected void startClient(string serverIP, int port)
     {
         this.serverIP = serverIP;
         this.port = port;
@@ -27,7 +27,7 @@ abstract public class UniveralClient : UniversalSocket
         mainThread.Start();
     }
 
-    void endClient() {
+    protected void endClient() {
         mainThread = null;
     }
 
@@ -40,7 +40,7 @@ abstract public class UniveralClient : UniversalSocket
         run(sr, sw);
     }
 #else
-    void startClient(string serverIP, int port)
+    protected void startClient(string serverIP, int port)
     {
         this.serverIP = serverIP;
         this.port = port;
@@ -48,7 +48,7 @@ abstract public class UniveralClient : UniversalSocket
         mainThread.Start();
     }
 
-    void endClient()
+    protected void endClient()
     {
         mainThread = null;
     }
