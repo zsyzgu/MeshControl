@@ -20,7 +20,7 @@ public class HololensClient : UniveralClient
         endClient();
     }
 #else
-
+    
 #endif
 
     protected override void run(StreamReader sr, StreamWriter sw)

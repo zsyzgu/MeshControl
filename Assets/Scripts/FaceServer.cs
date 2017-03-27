@@ -29,6 +29,8 @@ public class FaceServer : UniversalServer
 
     protected override void run(StreamReader sr, StreamWriter sw)
     {
+        Debug.Log("Face connected");
+
         while (mainThread != null)
         {
             int id, len;
@@ -37,5 +39,7 @@ public class FaceServer : UniversalServer
             centerServer.addPacket(id, len, data);
             faceControl.cmd(id, data);
         }
+
+        Debug.Log("Face disconnected");
     }
 }

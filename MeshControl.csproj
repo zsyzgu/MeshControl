@@ -84,6 +84,7 @@
     <Compile Include="Assets\Scripts\FaceServer.cs" />
     <Compile Include="Assets\Scripts\FileReader.cs" />
     <Compile Include="Assets\Scripts\HololensClient.cs" />
+    <Compile Include="Assets\Scripts\OptitrackClient.cs" />
     <Compile Include="Assets\Scripts\UniveralClient.cs" />
     <Compile Include="Assets\Scripts\UniversalServer.cs" />
     <Compile Include="Assets\Scripts\UniversalSocket.cs" />

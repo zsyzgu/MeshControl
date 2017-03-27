@@ -26,11 +26,15 @@ public class CenterServer : UniversalServer {
 
     protected override void run(StreamReader sr, StreamWriter sw)
     {
+        Debug.Log("Hololens connected");
+
         byte[] data;
         while (mainThread != null && (data = queue.Dequeue()) != null)
         {
             sw.BaseStream.Write(data, 0, data.Length);
         }
+
+        Debug.Log("Hololens disconnected");
     }
 
     public void addPacket(int id, int len, byte[] data)

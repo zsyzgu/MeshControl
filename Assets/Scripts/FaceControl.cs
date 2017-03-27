@@ -28,8 +28,7 @@ public class FaceControl : MonoBehaviour
     private Vector2[] leftEyeUV = null;
     private Vector2[] rightEyeUV = null;
     private Vector2[] mouthUV = null;
-
-
+    
     void Start()
     {
         foreach (Transform trans in transform)
@@ -52,6 +51,8 @@ public class FaceControl : MonoBehaviour
         leftEyeMesh = leftEye.GetComponent<MeshFilter>().mesh = new Mesh();
         rightEyeMesh = rightEye.GetComponent<MeshFilter>().mesh = new Mesh();
         mouthMesh = mouth.GetComponent<MeshFilter>().mesh = new Mesh();
+
+        localStart();
     }
 
 	void Update () {
@@ -163,6 +164,12 @@ public class FaceControl : MonoBehaviour
         leftEyeMesh.normals = rightEyeMesh.normals = mouthMesh.normals = faceMesh.normals;
     }
 
+    public void setTransform(Vector3 position, Vector3 eulerAngles)
+    {
+        transform.position = position;
+        transform.eulerAngles = eulerAngles;
+    }
+
     public void cmd(int id, byte[] data)
     {
         switch (id)
@@ -196,6 +203,10 @@ public class FaceControl : MonoBehaviour
                 break;
             case 9: //mouth.uv
                 mouthUV = parseToVector2Array(data);
+                break;
+            case 10: //transform
+                float[] array = parseToFloatArray(data);
+                setTransform(new Vector3(array[0], array[1], array[2]), new Vector3(array[3], array[4], array[5]));
                 break;
             default:
                 Debug.Log("Unknown cmd.");
