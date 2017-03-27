@@ -16,7 +16,7 @@ public class OptitrackClient : UniveralClient
     {
         centerServer = GameObject.Find("Center").GetComponent<CenterServer>();
         faceControl = GameObject.Find("Face").GetComponent<FaceControl>();
-        startClient("192.168.1.167", 5002);
+        startClient("192.168.1.135", 5002);
     }
 
     void OnApplicationQuit()

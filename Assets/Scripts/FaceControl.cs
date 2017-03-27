@@ -28,6 +28,9 @@ public class FaceControl : MonoBehaviour
     private Vector2[] leftEyeUV = null;
     private Vector2[] rightEyeUV = null;
     private Vector2[] mouthUV = null;
+    private bool faceMoved = false;
+    private Vector3 facePosition;
+    private Vector3 faceEulerAngles;
     
     void Start()
     {
@@ -123,6 +126,12 @@ public class FaceControl : MonoBehaviour
             mouthMesh.uv = mouthUV;
             mouthUV = null;
         }
+        if (faceMoved)
+        {
+            transform.position = facePosition;
+            transform.eulerAngles = faceEulerAngles;
+            faceMoved = false;
+        }
     }
 
     private void localStart()
@@ -166,8 +175,9 @@ public class FaceControl : MonoBehaviour
 
     public void setTransform(Vector3 position, Vector3 eulerAngles)
     {
-        transform.position = position;
-        transform.eulerAngles = eulerAngles;
+        faceMoved = true;
+        facePosition = position;
+        faceEulerAngles = eulerAngles;
     }
 
     public void cmd(int id, byte[] data)
