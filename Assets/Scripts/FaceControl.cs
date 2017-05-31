@@ -157,7 +157,7 @@ public class FaceControl : MonoBehaviour
         for (int i = 0; i < len; i++)
         {
             ret[i] = tris[s + i];
-            if (i % 3 == 2 && Vector3.Cross(vertices[ret[i - 1]] - vertices[ret[i - 2]], vertices[ret[i]] - vertices[ret[i - 2]]).z > 0)
+            if (i % 3 == 2 && Vector3.Cross(vertices[ret[i - 1]] - vertices[ret[i - 2]], vertices[ret[i]] - vertices[ret[i - 2]]).z < 0)
             {
                 int tmp = ret[i - 1];
                 ret[i - 1] = ret[i];
@@ -272,7 +272,7 @@ public class FaceControl : MonoBehaviour
         Vector3[] vector3Array = new Vector3[n];
         for (int i = 0; i < n; i++)
         {
-            vector3Array[i] = new Vector3(floatArray[i * 3], -floatArray[i * 3 + 1], floatArray[i * 3 + 2] * 0.5f);
+            vector3Array[i] = new Vector3(-floatArray[i * 3], -floatArray[i * 3 + 1], -floatArray[i * 3 + 2] * 0.5f);
         }
         return vector3Array;
     }
